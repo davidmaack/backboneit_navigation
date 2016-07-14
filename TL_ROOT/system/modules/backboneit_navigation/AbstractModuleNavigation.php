@@ -87,7 +87,6 @@ abstract class AbstractModuleNavigation extends Module {
 		$this->arrSubpages = &$this->arrSubitems; // for deprecated compat
 
 		$this->import('Database');
-		$this->import('String');
 
 		$this->varActiveID = $this->backboneit_navigation_isSitemap || $this->Input->get('articles') ? false : $GLOBALS['objPage']->id;
 		$this->arrTrail = array_flip($GLOBALS['objPage']->trail);
@@ -500,7 +499,14 @@ abstract class AbstractModuleNavigation extends Module {
 		if(strncasecmp($strHref, 'mailto:', 7) !== 0)
 			return $strHref;
 
-		return $this->String->encodeEmail($strHref);
+		// PHP 7 compatibility
+		// See #309 (https://github.com/contao/core-bundle/issues/309)
+		if (version_compare(VERSION . '.' . BUILD, '3.5.5', '>='))
+		{
+			return \StringUtil::encodeEmail($strHref);
+		}
+
+		return \String::encodeEmail($strHref);
 	}
 
 	public function isPermissionCheckRequired() {
